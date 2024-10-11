@@ -1,0 +1,62 @@
+<?php
+ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
+error_reporting(-1);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $filePaths = explode(PHP_EOL, trim($_POST['file_paths']));
+    $filePaths = array_filter(array_map('trim', $filePaths));
+
+    $zipFile = __DIR__ . '/files_' . uniqid() . '.zip';
+    // 初始化 ZipArchive 对象
+    $zip = new ZipArchive();
+    // 打开 zip 文件，如果失败则报错
+    if ($zip->open($zipFile, ZipArchive::CREATE) !== TRUE) {
+        die("无法创建 ZIP 文件");
+    }
+    // 用于记录已添加的文件名，避免重复
+    $addedFiles = [];
+    // 将每个文件添加到 zip 包中，生成随机子目录避免覆盖
+    foreach ($filePaths as $file) {
+        if (file_exists($file)) {
+            $fileName = basename($file);
+
+            // 检查是否已经存在相同文件名
+            if (in_array($fileName, $addedFiles)) {
+                // 生成随机子目录避免重名
+                $randomDir = 'dir_' . uniqid();
+                $zip->addFile($file, $randomDir . '/' . $fileName);
+            } else {
+                // 没有重名，直接添加文件
+                $zip->addFile($file, $fileName);
+                $addedFiles[] = $fileName;  // 记录已添加的文件名
+            }
+        } else {
+            echo "文件不存在: " . htmlspecialchars($file) . "<br>";
+        }
+    }
+    $zip->close();
+    echo $zipFile . "<br>";
+    // TODO:2024-09-10 修改设置
+    // $downloadLink = 'file_packager.php?download=' . basename($zipFile);
+    // echo "<a href='$downloadLink'>点击这里下载打包文件</a>";
+    }
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件打包器</title>
+</head>
+<body>
+
+<h1>输入文件路径打包下载 20240920 v3</h1>
+<form method="POST">
+    <textarea name="file_paths" rows="10" cols="50" placeholder="每行输入一个文件路径"></textarea><br><br>
+    <input type="submit" value="打包并下载">
+</form>
+
+</body>
+</html>
