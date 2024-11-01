@@ -1,0 +1,8 @@
+<html>
+    <body>
+        <h1>Hi {{username}},</h1>
+        <p>This is a marketing email from {{sender_name}}.</p>
+        <p>We hope you find our services valuable.</p>
+        <p>Best regards,<br>{{sender_name}}</p>
+    </body>
+</html>
